@@ -1,0 +1,414 @@
+/* Resets e Variáveis */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --bg-primary: #f8f6f2;
+    --bg-secondary: #ffffff;
+    --text-primary: #1a1311;
+    --text-secondary: #6b5d56;
+    --text-tertiary: #9e8e85;
+    --brand-red: #9e1b32;
+    --brand-gold: #d4af6a;
+    --border-light: rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+/* ==================== HEADER ==================== */
+.header {
+    background: #9e2235;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 0 var(--border-light);
+}
+
+.header-container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    text-align: center;
+}
+
+.logo-image {
+    height: 180px;
+    width: auto;
+    display: inline-block;
+}
+
+/* ==================== NAVIGATION ==================== */
+.nav-wrapper {
+    background: var(--bg-secondary);
+    position: sticky;
+    top: 76px;
+    z-index: 90;
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.nav {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 12px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.nav::-webkit-scrollbar {
+    display: none;
+}
+
+.nav-list {
+    display: flex;
+    gap: 8px;
+    padding: 0 24px;
+    min-width: min-content;
+}
+
+.nav-item {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1.5px solid transparent;
+    border-radius: 24px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.nav-item:active {
+    transform: scale(0.96);
+}
+
+.nav-item.active {
+    color: var(--brand-red);
+    background: rgba(158, 27, 50, 0.06);
+    border-color: rgba(158, 27, 50, 0.15);
+}
+
+/* ==================== CONTENT ==================== */
+.content {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 32px 20px 100px;
+}
+
+.category {
+    margin-bottom: 48px;
+    scroll-margin-top: 140px;
+}
+
+.category-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.category-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.category-divider {
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--brand-red), transparent);
+    margin: 0 auto;
+}
+
+/* ==================== PRODUCT CARDS ==================== */
+.products-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.product {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+}
+
+.product:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-md);
+}
+
+/* Layout horizontal padrão */
+.product-content {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    align-items: center;
+}
+
+.product-image-container {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    position: relative;
+}
+
+.product-image-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.1) 100%);
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.product-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.product-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+
+.product-description {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.product-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--brand-red);
+    letter-spacing: -0.02em;
+}
+
+.product-size {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+/* ==================== PRODUTO DESTAQUE ==================== */
+.product.featured {
+    box-shadow: var(--shadow-md);
+}
+
+.product.featured .product-content {
+    flex-direction: column;
+    padding: 0;
+    align-items: stretch;
+}
+
+.product.featured .product-image-container {
+    width: 100%;
+    height: 220px;
+    border-radius: 0;
+    border-radius: 20px 20px 0 0;
+}
+
+.product.featured .product-details {
+    padding: 20px;
+}
+
+.product.featured .product-name {
+    font-size: 20px;
+}
+
+.product.featured .product-description {
+    font-size: 14px;
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+}
+
+.product.featured .product-price {
+    font-size: 22px;
+}
+
+/* Badge "Destaque" */
+.featured-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: var(--brand-red);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    z-index: 1;
+}
+
+/* ==================== FOOTER ==================== */
+.footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-light);
+    padding: 32px 24px;
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.footer-logo {
+    height: 28px;
+    width: auto;
+    opacity: 0.4;
+    margin-bottom: 16px;
+}
+
+.footer-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.footer-legal {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+/* ==================== ANIMAÇÕES ==================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product {
+    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+.product:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.product:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.product:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.product:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.product:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.product:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+/* ==================== SAFE AREA (iOS) ==================== */
+@supports (padding: env(safe-area-inset-top)) {
+    .header-container {
+        padding-top: calc(20px + env(safe-area-inset-top));
+    }
+
+    .content {
+        padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    }
+
+    .footer {
+        padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    }
+}
+
+/* ==================== LOADING SKELETON ==================== */
+@keyframes shimmer {
+    0% {
+        background-position: -468px 0;
+    }
+
+    100% {
+        background-position: 468px 0;
+    }
+}
+
+.product-image-container.loading {
+    background: linear-gradient(90deg, #f0f0f0 0px, #f8f8f8 40px, #f0f0f0 80px);
+    background-size: 468px;
+    animation: shimmer 1.2s infinite;
+}
+
+/* ==================== DARK MODE SUPPORT ==================== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1a1311;
+        --bg-secondary: #2a221f;
+        --text-primary: #f8f6f2;
+        --text-secondary: #b8afa8;
+        --text-tertiary: #8a7d75;
+        --border-light: rgba(255, 255, 255, 0.08);
+    }
+}

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Cardápio Digital Kopenhagen">
+    <meta name="theme-color" content="#9e1b32">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Kopenhagen</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #f6f1e8;
+            --surface: #ffffff;
+            --text: #2a1b12;
+            --text-light: #6a5a50;
+            --brand-red: #9e1b32;
+            --brand-red-light: rgba(158, 27, 50, 0.08);
+            --gold: #c8a26a;
+            --border: rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* HEADER - Fixo e minimalista */
+        .header {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-content {
+            padding: 16px 20px;
+            text-align: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 600;
+            font-style: italic;
+            color: var(--brand-red);
+            letter-spacing: 0.5px;
+        }
+
+        /* NAVEGAÇÃO - Horizontal scroll suave */
+        .nav {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            position: sticky;
+            top: 58px;
+            z-index: 90;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-list {
+            display: flex;
+            padding: 8px 12px;
+            gap: 8px;
+            min-width: min-content;
+        }
+
+        .nav-item {
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+            background: transparent;
+            border: none;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-item.active {
+            background: var(--brand-red-light);
+            color: var(--brand-red);
+        }
+
+        /* CONTEÚDO */
+        .content {
+            padding: 24px 16px 80px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .category {
+            margin-bottom: 40px;
+            scroll-margin-top: 120px;
+        }
+
+        .category-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text);
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        .category-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 3px;
+            background: var(--brand-red);
+            border-radius: 2px;
+        }
+
+        /* CARD DE PRODUTO - Otimizado para toque */
+        .product {
+            background: var(--surface);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            min-height: 120px;
+        }
+
+        .product:active {
+            transform: scale(0.98);
+        }
+
+        .product-image {
+            width: 88px;
+            height: 88px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ececec 100%);
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 0;
+        }
+
+        .product-header {
+            flex: 1;
+        }
+
+        .product-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .product-desc {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--brand-red);
+            margin-top: 8px;
+        }
+
+        /* PRODUTO DESTAQUE - Layout vertical */
+        .product.featured {
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .product.featured .product-image {
+            width: 100%;
+            height: 200px;
+            border-radius: 0;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .product.featured .product-info {
+            padding: 16px;
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 24px 20px 32px;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .footer-small {
+            font-size: 11px;
+            color: var(--text-light);
+            opacity: 0.7;
+        }
+
+        /* ANIMAÇÕES */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product {
+            animation: fadeIn 0.4s ease backwards;
+        }
+
+        .product:nth-child(1) { animation-delay: 0.05s; }
+        .product:nth-child(2) { animation-delay: 0.1s; }
+        .product:nth-child(3) { animation-delay: 0.15s; }
+        .product:nth-child(4) { animation-delay: 0.2s; }
+        .product:nth-child(5) { animation-delay: 0.25s; }
+
+        /* SAFE AREA (iPhone e Android) */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            .header-content {
+                padding-top: calc(16px + env(safe-area-inset-top));
+            }
+            
+            .content {
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
+            
+            .footer {
+                padding-bottom: calc(32px + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* OTIMIZAÇÕES DE PERFORMANCE */
+        .product-image {
+            contain: layout style paint;
+            content-visibility: auto;
+        }
+
+        img {
+            will-change: transform;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="logo">Kopenhagen</h1>
+        </div>
+    </header>
+
+    <!-- NAVEGAÇÃO -->
+    <nav class="nav">
+        <div class="nav-list" id="nav">
+            <!-- Injetado via JS -->
+        </div>
+    </nav>
+
+    <!-- CONTEÚDO -->
+    <main class="content" id="content">
+        <!-- Injetado via JS -->
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p class="footer-text">© 2024 Kopenhagen</p>
+        <p class="footer-small">Imagens meramente ilustrativas</p>
+    </footer>
+
+    <script>
+        // DADOS DO CARDÁPIO
+        const menu = {
+            categories: [
+                { id: 'cafes', name: 'Cafés' },
+                { id: 'chocolates', name: 'Chocolates' },
+                { id: 'sobremesas', name: 'Sobremesas' },
+                { id: 'gelados', name: 'Gelados' }
+            ],
+            products: [
+                // CAFÉS
+                {
+                    id: 1,
+                    category: 'cafes',
+                    name: 'Espresso Kop',
+                    desc: 'Café espresso encorpado e aromático',
+                    price: 'R$ 9,90',
+                    image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400&h=400&fit=crop',
+                    featured: false
+                },
+                {
+                    id: 2,
+                    category: 'cafes',
+                    name: 'Cappuccino Língua de Gato',
+                    desc: 'Cappuccino premium com pedaços de Língua de Gato',
+                    price: 'R$ 22,90',
+                    image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&h=600&fit=crop',
+                    featured: true
+                },
+                {
+                    id: 3,
+                    category: 'cafes',
+                    name: 'Café com Leite',
+                    desc: 'Café espresso com leite vaporizado',
+                    price: 'R$ 15,50',
+                    image: 'https://images.unsplash.com/photo-1534687566444-a5c9e7c1-e0de-4c8c-95ea-8b515d6bcf36?w=400&h=400&fit=crop',
+                    featured: false
+                },
+                // CHOCOLATES
+                {
+                    id: 4,
+                    category: 'chocolates',
+                    name: 'Nhá Benta Tradicional',
+                    desc: 'Marshmallow coberto com chocolate ao leite',
+                    price: 'R$ 18,90',
+                    image: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400&h=400&fit=crop',
+                    featured: false
+                },
+                {
+                    id: 5,
+                    category: 'chocolates',
+                    name: 'Língua de Gato',
+                    desc: 'Clássico chocolate em formato único',
+                    price: 'R$ 29,90',
+                    image: 'https://images.unsplash.com/photo-1511381939415-e44015466834?w=400&h=400&fit=crop',
+                    featured: false
+                },
+                {
+                    id: 6,
+                    category: 'chocolates',
+                    name: 'Trufa Belga',
+                    desc: 'Trufa artesanal de chocolate belga',
+                    price: 'R$ 12,90',
+                    image: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400&h=400&fit=crop',
+                    featured: false
+                },
+                // SOBREMESAS
+                {
+                    id: 7,
+                    category: 'sobremesas',
+                    name: 'Petit Gâteau',
+                    desc: 'Bolo quente com recheio cremoso e sorvete',
+                    price: 'R$ 34,90',
+                    image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=800&h=600&fit=crop',
+                    featured: true
+                },
+                {
+                    id: 8,
+                    category: 'sobremesas',
+                    name: 'Mousse de Chocolate',
+                    desc: 'Mousse cremoso de chocolate Kopenhagen',
+                    price: 'R$ 27,50',
+                    image: 'https://images.unsplash.com/photo-1541599468348-e96984315921?w=400&h=400&fit=crop',
+                    featured: false
+                },
+                {
+                    id: 9,
+                    category: 'sobremesas',
+                    name: 'Brownie com Sorvete',
+                    desc: 'Brownie quentinho acompanhado de sorvete',
+                    price: 'R$ 40,50',
+                    image: 'https://images.unsplash.com/photo-1607920591413-4ec007e70023?w=400&h=400&fit=crop',
+                    featured: false
+                },
+                // GELADOS
+                {
+                    id: 10,
+                    category: 'gelados',
+                    name: 'Milkshake Lajotinha',
+                    desc: 'Milkshake cremoso sabor Lajotinha',
+                    price: 'R$ 28,90',
+                    image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&h=400&fit=crop',
+                    featured: false
+                },
+                {
+                    id: 11,
+                    category: 'gelados',
+                    name: 'Sundae Língua de Gato',
+                    desc: 'Sorvete com calda de chocolate e Língua de Gato',
+                    price: 'R$ 28,50',
+                    image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=400&fit=crop',
+                    featured: false
+                },
+                {
+                    id: 12,
+                    category: 'gelados',
+                    name: 'Affogato',
+                    desc: 'Sorvete com café espresso e Língua de Gato',
+                    price: 'R$ 32,90',
+                    image: 'https://images.unsplash.com/photo-1514849302-984523450cf4?w=400&h=400&fit=crop',
+                    featured: false
+                }
+            ]
+        };
+
+        // RENDERIZAR NAVEGAÇÃO
+        function renderNav() {
+            const nav = document.getElementById('nav');
+            menu.categories.forEach((cat, i) => {
+                const btn = document.createElement('button');
+                btn.className = `nav-item ${i === 0 ? 'active' : ''}`;
+                btn.textContent = cat.name;
+                btn.dataset.category = cat.id;
+                btn.onclick = () => scrollTo(cat.id);
+                nav.appendChild(btn);
+            });
+        }
+
+        // RENDERIZAR PRODUTOS
+        function renderProducts() {
+            const content = document.getElementById('content');
+            menu.categories.forEach(cat => {
+                const products = menu.products.filter(p => p.category === cat.id);
+                if (!products.length) return;
+
+                const section = document.createElement('section');
+                section.id = cat.id;
+                section.className = 'category';
+
+                const title = document.createElement('h2');
+                title.className = 'category-title';
+                title.textContent = cat.name;
+                section.appendChild(title);
+
+                products.forEach(product => {
+                    const card = document.createElement('article');
+                    card.className = `product ${product.featured ? 'featured' : ''}`;
+                    
+                    card.innerHTML = `
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.name}" loading="lazy">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-header">
+                                <h3 class="product-name">${product.name}</h3>
+                                <p class="product-desc">${product.desc}</p>
+                            </div>
+                            <div class="product-price">${product.price}</div>
+                        </div>
+                    `;
+                    
+                    section.appendChild(card);
+                });
+
+                content.appendChild(section);
+            });
+        }
+
+        // SCROLL PARA CATEGORIA
+        function scrollTo(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            
+            const offset = 120;
+            const top = el.offsetTop - offset;
+            
+            window.scrollTo({
+                top: top,
+                behavior: 'smooth'
+            });
+        }
+
+        // SCROLL SPY
+        function setupScrollSpy() {
+            const sections = document.querySelectorAll('.category');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id;
+                        navItems.forEach(item => {
+                            item.classList.toggle('active', item.dataset.category === id);
+                        });
+                        
+                        // Scroll horizontal do nav
+                        const activeBtn = document.querySelector(`.nav-item[data-category="${id}"]`);
+                        if (activeBtn) {
+                            activeBtn.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'nearest',
+                                inline: 'center'
+                            });
+                        }
+                    }
+                });
+            }, {
+                rootMargin: '-120px 0px -60% 0px',
+                threshold: 0
+            });
+            
+            sections.forEach(section => observer.observe(section));
+        }
+
+        // INICIALIZAR
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNav();
+            renderProducts();
+            setupScrollSpy();
+        });
+    </script>
+</body>
+</html>
