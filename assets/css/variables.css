@@ -1,0 +1,45 @@
+:root {
+    /* Colors - Brand Polish (Kopenhagen Editorial Premium) */
+    --bg: #f6f1e8;
+    --surface: #ffffff;
+    --text: #2a1b12;
+    --muted: #6a5a50;
+
+    --brand-red: #9e1b32;
+    --brand-red-soft: rgba(158, 27, 50, 0.08);
+    --gold: #c8a26a;
+
+    /* Aliases for backwards compatibility/semantic usage */
+    --color-background: var(--bg);
+    --color-surface: var(--surface);
+    --color-text-main: var(--text);
+    --color-text-secondary: var(--muted);
+    --color-border: #E5E5E5;
+    /* Kept neutral */
+    --color-primary: var(--gold);
+    /* Map gold to primary for generic usage */
+
+    /* Typography */
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Spacing */
+    --spacing-xs: 6px;
+    --spacing-sm: 12px;
+    --spacing-md: 20px;
+    --spacing-lg: 32px;
+    --spacing-xl: 48px;
+
+    /* Layout */
+    --header-height: 70px;
+    --nav-height: 55px;
+    --border-radius-sm: 6px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
+
+    /* Animations */
+    --transition-fast: 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-medium: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
