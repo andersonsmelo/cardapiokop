@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cardapio
+      POSTGRES_USER: cardapio
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cardapio_secret_2024}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cardapio"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: ./web
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://cardapio:${DB_PASSWORD:-cardapio_secret_2024}@db:5432/cardapio
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-production-with-a-64-char-random-string}
+      NODE_ENV: production
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - uploads:/app/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  uploads:

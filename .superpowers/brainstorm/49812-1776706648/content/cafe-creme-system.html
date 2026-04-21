@@ -1,0 +1,353 @@
+<h2>Design proposto: Café Creme em todo o sistema</h2>
+<p class="subtitle">Abaixo está a aplicação da direção B no cardápio público e nas telas administrativas, mantendo vinho Kopenhagen como assinatura e usando creme/café para clarear.</p>
+
+<style>
+  .kop-grid {
+    display: grid;
+    grid-template-columns: 0.82fr 1.18fr;
+    gap: 22px;
+    margin-top: 24px;
+  }
+  .kop-panel {
+    border: 1px solid #dfc7a9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #f4eadc;
+    color: #321b13;
+    box-shadow: 0 18px 44px rgba(71, 42, 27, .12);
+  }
+  .kop-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: #8f1430;
+    color: #f4dfb9;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-size: 12px;
+  }
+  .kop-phone {
+    max-width: 360px;
+    min-height: 610px;
+    margin: 0 auto;
+    background:
+      radial-gradient(circle at top, rgba(255, 248, 238, .86), rgba(244, 234, 220, 0) 34%),
+      #f4eadc;
+    padding: 18px;
+  }
+  .kop-header {
+    height: 78px;
+    border-radius: 22px 22px 8px 8px;
+    background: #8f1430;
+    color: #f0d7aa;
+    display: grid;
+    place-items: center;
+    font-family: Georgia, serif;
+    font-size: 27px;
+  }
+  .kop-welcome {
+    text-align: center;
+    padding: 28px 8px 22px;
+  }
+  .kop-eyebrow {
+    color: #94632e;
+    text-transform: uppercase;
+    letter-spacing: .22em;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .kop-title {
+    margin: 7px 0 8px;
+    color: #8f1430;
+    font-family: Georgia, serif;
+    font-size: 34px;
+    line-height: 1;
+  }
+  .kop-copy {
+    margin: 0 auto;
+    max-width: 270px;
+    color: #634235;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .kop-pill-row {
+    display: flex;
+    gap: 8px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .kop-pill {
+    border-radius: 99px;
+    padding: 8px 14px;
+    white-space: nowrap;
+    font-size: 12px;
+    border: 1px solid #dfc7a9;
+    background: #fff8ee;
+    color: #70402b;
+  }
+  .kop-pill.active {
+    background: #8f1430;
+    border-color: #8f1430;
+    color: #fff8ee;
+  }
+  .kop-product {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 14px;
+    align-items: center;
+    border-radius: 20px;
+    padding: 13px;
+    background: #fff8ee;
+    border: 1px solid #dfc7a9;
+    box-shadow: 0 12px 28px rgba(68, 36, 22, .10);
+    margin-bottom: 13px;
+  }
+  .kop-product-media {
+    width: 92px;
+    height: 92px;
+    border-radius: 999px;
+    background: #e7c89f;
+    border: 2px solid #bd884f;
+    display: grid;
+    place-items: center;
+    color: #71421f;
+    font-family: Georgia, serif;
+    font-size: 38px;
+  }
+  .kop-product h3 {
+    color: #7f1830;
+    margin: 0 0 5px;
+    font-size: 17px;
+    line-height: 1.12;
+  }
+  .kop-product p {
+    color: #67493e;
+    margin: 0 0 10px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .kop-price {
+    color: #8f1430;
+    font-size: 16px;
+    font-weight: 850;
+  }
+  .kop-admin {
+    min-height: 610px;
+    background: #f4eadc;
+  }
+  .admin-top {
+    height: 72px;
+    background: #fff8ee;
+    border-bottom: 1px solid #dfc7a9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+  }
+  .admin-brand {
+    color: #8f1430;
+    font-family: Georgia, serif;
+    font-size: 24px;
+  }
+  .admin-button {
+    background: #8f1430;
+    color: #fff8ee;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .admin-main {
+    padding: 28px;
+  }
+  .admin-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-bottom: 18px;
+  }
+  .admin-heading h3 {
+    margin: 0 0 4px;
+    color: #321b13;
+    font-size: 25px;
+  }
+  .admin-heading p {
+    margin: 0;
+    color: #70402b;
+    font-size: 13px;
+  }
+  .admin-table {
+    background: #fff8ee;
+    border: 1px solid #dfc7a9;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(68, 36, 22, .08);
+  }
+  .admin-row {
+    display: grid;
+    grid-template-columns: 1.2fr .75fr .55fr .55fr;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid #ead8bf;
+    color: #523326;
+    font-size: 13px;
+  }
+  .admin-row.head {
+    background: #f0ddc4;
+    color: #7f1830;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 800;
+    font-size: 11px;
+  }
+  .admin-product {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 750;
+    color: #321b13;
+  }
+  .admin-thumb {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: #e7c89f;
+    border: 1px solid #bd884f;
+  }
+  .tag {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 5px 10px;
+    background: #f4eadc;
+    color: #7f1830;
+    border: 1px solid #dfc7a9;
+    font-weight: 700;
+  }
+  .tokens {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .token {
+    border-radius: 12px;
+    min-height: 86px;
+    border: 1px solid rgba(0,0,0,.08);
+    padding: 12px;
+    display: flex;
+    align-items: end;
+    font-size: 12px;
+    font-weight: 800;
+  }
+  @media (max-width: 960px) {
+    .kop-grid { grid-template-columns: 1fr; }
+    .tokens { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .admin-row { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="kop-grid">
+  <div class="kop-panel card" data-choice="public" onclick="toggleSelect(this)">
+    <div class="kop-label"><span>Cardápio público</span><span>QR Code</span></div>
+    <div class="kop-phone">
+      <div class="kop-header">Kopenhagen</div>
+      <div class="kop-welcome">
+        <div class="kop-eyebrow">Bem-vindo à</div>
+        <h3 class="kop-title">Kopenhagen</h3>
+        <p class="kop-copy">Descubra cafés, chocolates e sobremesas em uma experiência mais clara e acolhedora.</p>
+      </div>
+      <div class="kop-pill-row">
+        <div class="kop-pill active">Cafés</div>
+        <div class="kop-pill">Chocolates</div>
+        <div class="kop-pill">Sobremesas</div>
+      </div>
+      <div class="kop-product">
+        <div class="kop-product-media">☕</div>
+        <div>
+          <h3>Café com Leite</h3>
+          <p>Café expresso com leite vaporizado.</p>
+          <div class="kop-price">R$ 15,50</div>
+        </div>
+      </div>
+      <div class="kop-product">
+        <div class="kop-product-media">K</div>
+        <div>
+          <h3>Chocolate Quente</h3>
+          <p>Chocolate quente saboroso feito com chocolate Kopenhagen.</p>
+          <div class="kop-price">R$ 16,50</div>
+        </div>
+      </div>
+      <div class="kop-product">
+        <div class="kop-product-media">S</div>
+        <div>
+          <h3>Nhã Benta S'mores</h3>
+          <p>Sobremesa cremosa com calda de chocolate.</p>
+          <div class="kop-price">R$ 39,90</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kop-panel card" data-choice="admin" onclick="toggleSelect(this)">
+    <div class="kop-label"><span>Área administrativa</span><span>Mesmo sistema visual</span></div>
+    <div class="kop-admin">
+      <div class="admin-top">
+        <div class="admin-brand">Kopenhagen Admin</div>
+        <div class="admin-button">Novo produto</div>
+      </div>
+      <div class="admin-main">
+        <div class="admin-heading">
+          <div>
+            <h3>Produtos</h3>
+            <p>Gerencie o cardápio do restaurante</p>
+          </div>
+          <div class="admin-button">Salvar</div>
+        </div>
+        <div class="admin-table">
+          <div class="admin-row head">
+            <div>Produto</div>
+            <div>Categoria</div>
+            <div>Preço</div>
+            <div>Status</div>
+          </div>
+          <div class="admin-row">
+            <div class="admin-product"><span class="admin-thumb"></span>Café Expresso</div>
+            <div><span class="tag">Cafés</span></div>
+            <div>R$ 13,00</div>
+            <div>Destaque</div>
+          </div>
+          <div class="admin-row">
+            <div class="admin-product"><span class="admin-thumb"></span>Chocolate Quente</div>
+            <div><span class="tag">Chocolates</span></div>
+            <div>R$ 16,50</div>
+            <div>Ativo</div>
+          </div>
+          <div class="admin-row">
+            <div class="admin-product"><span class="admin-thumb"></span>Nhã Benta</div>
+            <div><span class="tag">Sobremesas</span></div>
+            <div>R$ 39,90</div>
+            <div>Ativo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tokens">
+  <div class="token" style="background:#f4eadc;color:#321b13">background<br>#F4EADC</div>
+  <div class="token" style="background:#fff8ee;color:#321b13">surface<br>#FFF8EE</div>
+  <div class="token" style="background:#8f1430;color:#fff8ee">brand<br>#8F1430</div>
+  <div class="token" style="background:#c79d6b;color:#321b13">gold<br>#C79D6B</div>
+  <div class="token" style="background:#321b13;color:#fff8ee">text<br>#321B13</div>
+  <div class="token" style="background:#dfc7a9;color:#321b13">border<br>#DFC7A9</div>
+</div>
+
+<div class="section" style="margin-top:24px">
+  <h3>Proposta em palavras</h3>
+  <p>Trocar a base preta por creme quente, cartões quase claros, textos chocolate, vinho Kopenhagen para headers/preços/ações principais e dourado/champagne para detalhes. O admin deixa de ser escuro, mas mantém contraste suficiente para trabalho diário.</p>
+</div>

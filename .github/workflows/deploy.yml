@@ -1,0 +1,46 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'npm'
+        cache-dependency-path: web/package-lock.json
+
+    - name: 📦 Install Dependencies
+      run: |
+        cd web
+        npm ci
+
+    - name: 🏗️ Build Project
+      run: |
+        cd web
+        npm run build
+
+    - name: 📂 Sync files (FTP)
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./web/out/
+        # Upload to the root of the FTP user's directory
+        server-dir: ./ 
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**

@@ -1,0 +1,288 @@
+<h2>Qual caminho de clareamento mantém melhor a marca?</h2>
+<p class="subtitle">Usei as peças do cardápio físico como referência: fundo off-white, vinho Kopenhagen, detalhes champagne/dourado e tons de café/chocolate.</p>
+
+<style>
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 22px;
+  }
+  .palette-card {
+    border: 1px solid #ded8cf;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+  .palette-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 38px rgba(56, 35, 28, .14);
+    border-color: #9f1239;
+  }
+  .phone {
+    width: 100%;
+    min-height: 480px;
+    padding: 18px;
+    box-sizing: border-box;
+  }
+  .topbar {
+    height: 58px;
+    border-radius: 18px 18px 4px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Georgia, serif;
+    font-size: 24px;
+    letter-spacing: .02em;
+  }
+  .intro {
+    text-align: center;
+    padding: 22px 8px 18px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .22em;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .brand-title {
+    font-family: Georgia, serif;
+    font-size: 30px;
+    line-height: 1;
+    margin: 0 0 8px;
+  }
+  .intro-copy {
+    font-size: 12px;
+    line-height: 1.45;
+    margin: 0 auto;
+    max-width: 230px;
+  }
+  .category-pill {
+    width: 88px;
+    height: 5px;
+    border-radius: 99px;
+    margin: 0 auto 18px;
+  }
+  .product {
+    display: grid;
+    grid-template-columns: 82px 1fr;
+    gap: 14px;
+    align-items: center;
+    border-radius: 18px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .product-image {
+    width: 82px;
+    height: 82px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    font-size: 34px;
+    font-family: Georgia, serif;
+  }
+  .product h4 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    line-height: 1.1;
+  }
+  .product p {
+    margin: 0 0 8px;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .price {
+    font-weight: 800;
+    font-size: 15px;
+  }
+  .swatches {
+    display: flex;
+    gap: 8px;
+    padding: 14px 16px 0;
+  }
+  .swatch {
+    height: 22px;
+    flex: 1;
+    border-radius: 99px;
+    border: 1px solid rgba(0,0,0,.08);
+  }
+  .palette-body {
+    padding: 16px 18px 20px;
+  }
+  .palette-body h3 {
+    margin: 0 0 7px;
+  }
+  .palette-body p {
+    margin: 0;
+    color: #5f5a56;
+    line-height: 1.45;
+  }
+  .current-strip {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 18px;
+    align-items: center;
+    padding: 18px;
+    border: 1px solid #2a2a2a;
+    background: #151515;
+    color: #f7f1e8;
+    border-radius: 14px;
+    margin: 22px 0;
+  }
+  .current-mini {
+    background: #1e1e1e;
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .current-mini .line {
+    height: 10px;
+    border-radius: 99px;
+    background: #a81c30;
+    margin-bottom: 10px;
+  }
+  .current-mini .box {
+    height: 54px;
+    border-radius: 12px;
+    background: #252525;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  @media (max-width: 920px) {
+    .palette-grid { grid-template-columns: 1fr; }
+    .current-strip { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="current-strip">
+  <div class="current-mini">
+    <div class="line"></div>
+    <div class="box"></div>
+  </div>
+  <div>
+    <div class="label" style="color:#d5b87a">Estado atual</div>
+    <h3 style="margin:4px 0 6px;color:#fff">Escuro premium</h3>
+    <p style="margin:0;color:#cfc7bd">O visual atual passa sofisticação, mas fica pesado para leitura de cardápio em celular. A reunião pediu clareza; o PDF físico indica que a marca já funciona muito bem em fundo claro.</p>
+  </div>
+</div>
+
+<div class="palette-grid">
+  <div class="palette-card card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="phone" style="background:#fbf7f0;color:#3a2118">
+      <div class="topbar" style="background:#9f1239;color:#ead2a8">Kopenhagen</div>
+      <div class="intro">
+        <div class="eyebrow" style="color:#b8894d">Bem-vindo à</div>
+        <h3 class="brand-title" style="color:#9f1239">Kopenhagen</h3>
+        <p class="intro-copy" style="color:#6b4b3d">Clássicos, cafés e sobremesas em uma leitura mais leve.</p>
+      </div>
+      <div class="category-pill" style="background:#9f1239"></div>
+      <div class="product" style="background:#fffdf9;border:1px solid #eadfcf;box-shadow:0 10px 24px rgba(72,43,29,.08)">
+        <div class="product-image" style="background:#f0ddc4;border:2px solid #d8b978;color:#8a5a2b">☕</div>
+        <div>
+          <h4 style="color:#8f1535">Café Expresso</h4>
+          <p style="color:#6f5b52">Café expresso feito com grão arábica.</p>
+          <div class="price" style="color:#9f1239">R$ 13,00</div>
+        </div>
+      </div>
+      <div class="product" style="background:#fffdf9;border:1px solid #eadfcf;box-shadow:0 10px 24px rgba(72,43,29,.08)">
+        <div class="product-image" style="background:#f0ddc4;border:2px solid #d8b978;color:#8a5a2b">K</div>
+        <div>
+          <h4 style="color:#8f1535">Chocolate Quente</h4>
+          <p style="color:#6f5b52">Chocolate quente saboroso com nota intensa.</p>
+          <div class="price" style="color:#9f1239">R$ 16,50</div>
+        </div>
+      </div>
+    </div>
+    <div class="swatches">
+      <span class="swatch" style="background:#fbf7f0"></span>
+      <span class="swatch" style="background:#9f1239"></span>
+      <span class="swatch" style="background:#d8b978"></span>
+      <span class="swatch" style="background:#3a2118"></span>
+    </div>
+    <div class="palette-body">
+      <h3>A. Editorial Claro</h3>
+      <p>Mais fiel às peças impressas: fundo off-white, vinho como assinatura e dourado comedido. Minha recomendação.</p>
+    </div>
+  </div>
+
+  <div class="palette-card card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="phone" style="background:#f4eadc;color:#321b13">
+      <div class="topbar" style="background:#8f1430;color:#f0d7aa">Kopenhagen</div>
+      <div class="intro">
+        <div class="eyebrow" style="color:#94632e">Bem-vindo à</div>
+        <h3 class="brand-title" style="color:#8f1430">Kopenhagen</h3>
+        <p class="intro-copy" style="color:#634235">Cardápio aquecido, mais gastronômico e aconchegante.</p>
+      </div>
+      <div class="category-pill" style="background:#c79d6b"></div>
+      <div class="product" style="background:#fff8ee;border:1px solid #dfc7a9;box-shadow:0 12px 28px rgba(68,36,22,.10)">
+        <div class="product-image" style="background:#e7c89f;border:2px solid #bd884f;color:#71421f">☕</div>
+        <div>
+          <h4 style="color:#7f1830">Café Expresso</h4>
+          <p style="color:#67493e">Café expresso feito com grão arábica.</p>
+          <div class="price" style="color:#8f1430">R$ 13,00</div>
+        </div>
+      </div>
+      <div class="product" style="background:#fff8ee;border:1px solid #dfc7a9;box-shadow:0 12px 28px rgba(68,36,22,.10)">
+        <div class="product-image" style="background:#e7c89f;border:2px solid #bd884f;color:#71421f">K</div>
+        <div>
+          <h4 style="color:#7f1830">Chocolate Quente</h4>
+          <p style="color:#67493e">Chocolate quente saboroso com nota intensa.</p>
+          <div class="price" style="color:#8f1430">R$ 16,50</div>
+        </div>
+      </div>
+    </div>
+    <div class="swatches">
+      <span class="swatch" style="background:#f4eadc"></span>
+      <span class="swatch" style="background:#8f1430"></span>
+      <span class="swatch" style="background:#c79d6b"></span>
+      <span class="swatch" style="background:#321b13"></span>
+    </div>
+    <div class="palette-body">
+      <h3>B. Café Creme</h3>
+      <p>Mais quente e sensorial. Passa conforto, mas corre maior risco de ficar bege demais se usado em tudo.</p>
+    </div>
+  </div>
+
+  <div class="palette-card card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="phone" style="background:#fffdf9;color:#2d1d18">
+      <div class="topbar" style="background:#ffffff;color:#9f1239;border:1px solid #eee0d2">Kopenhagen</div>
+      <div class="intro">
+        <div class="eyebrow" style="color:#b6935d">Bem-vindo à</div>
+        <h3 class="brand-title" style="color:#9f1239">Kopenhagen</h3>
+        <p class="intro-copy" style="color:#5d5551">Leitura máxima, pouca massa visual, foco total nos produtos.</p>
+      </div>
+      <div class="category-pill" style="background:#9f1239"></div>
+      <div class="product" style="background:#ffffff;border:1px solid #eee8df;box-shadow:0 8px 20px rgba(36,24,18,.06)">
+        <div class="product-image" style="background:#f5efe6;border:2px solid #e3d1b4;color:#8a5a2b">☕</div>
+        <div>
+          <h4 style="color:#8f1535">Café Expresso</h4>
+          <p style="color:#5f5853">Café expresso feito com grão arábica.</p>
+          <div class="price" style="color:#9f1239">R$ 13,00</div>
+        </div>
+      </div>
+      <div class="product" style="background:#ffffff;border:1px solid #eee8df;box-shadow:0 8px 20px rgba(36,24,18,.06)">
+        <div class="product-image" style="background:#f5efe6;border:2px solid #e3d1b4;color:#8a5a2b">K</div>
+        <div>
+          <h4 style="color:#8f1535">Chocolate Quente</h4>
+          <p style="color:#5f5853">Chocolate quente saboroso com nota intensa.</p>
+          <div class="price" style="color:#9f1239">R$ 16,50</div>
+        </div>
+      </div>
+    </div>
+    <div class="swatches">
+      <span class="swatch" style="background:#fffdf9"></span>
+      <span class="swatch" style="background:#9f1239"></span>
+      <span class="swatch" style="background:#b6935d"></span>
+      <span class="swatch" style="background:#2d1d18"></span>
+    </div>
+    <div class="palette-body">
+      <h3>C. Minimal Luxo</h3>
+      <p>O mais claro e limpo. Excelente legibilidade, mas perde um pouco do calor visual presente nas peças físicas.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:26px">
+  <p class="subtitle">Clique em uma opção no navegador, ou me responda por aqui com A, B ou C. Se quiser, também posso misturar: por exemplo, base A com cards mais brancos da C.</p>
+</div>
