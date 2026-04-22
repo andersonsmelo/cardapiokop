@@ -575,6 +575,21 @@ cat -v .github/copilot-instructions.md | grep -P '[^\x20-\x7E\n\r\t]'
 
 ## 13. Referências e Fontes
 
+---
+
+## 14. Release Gates do Repositório
+
+Nenhuma mudança segue para merge ou deploy sem passar pelos portões abaixo no pipeline de CI:
+
+- `npm run lint -- .` deve passar no diretório `web`
+- `npm test` deve passar no diretório `web`
+- `npx tsc --noEmit` deve passar no diretório `web`
+- `npm audit --omit=dev` deve retornar sem achados high/critical
+- Secret scanning com Gitleaks deve passar antes do merge
+- Mudanças em autenticação, upload, sessão, autorização administrativa, CI/CD e segredos exigem revisão humana com contexto de segurança
+
+Falha em qualquer gate bloqueia merge em `main` e bloqueia promoção para deploy.
+
 Este documento foi construído a partir da análise consolidada de múltiplas fontes de pesquisa:
 
 - **OWASP Top 10 (2021)** — https://owasp.org/Top10/
