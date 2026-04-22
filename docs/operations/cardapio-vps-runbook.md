@@ -1,8 +1,45 @@
 # Cardapio VPS Runbook
 
-Ultima verificacao manual: **20/04/2026**
+Ultima verificacao manual: **22/04/2026**
 
 > Documento privado de operacoes. Nao copie hostnames, portas, caminhos, comandos sensiveis ou referencias a credenciais deste arquivo para README publico, issues, PRs abertas ou transcripts de chat.
+
+## Incidente Conhecido: DNS Split
+
+Em **22/04/2026**, o dominio publico `cardapiokop.ascendcreative.com.br` ainda resolvia para dois A records:
+
+- `69.6.222.219` -> VPS atual, com Nginx, headers de seguranca e API correta
+- `108.167.188.244` -> host legado em Apache/cPanel, servindo artefato desatualizado
+
+Sintomas observados no host legado:
+
+- `GET /` responde `200` com `Server: Apache`
+- `GET /api/auth/me` responde `200 text/html` em vez de `401 application/json`
+- headers de hardening aplicados no VPS nao aparecem nesse caminho
+
+Conclusao operacional:
+
+- deploy no VPS pode estar correto e ainda assim a producao publica continuar inconsistente
+- antes de declarar publicacao concluida, confirme que o DNS do dominio aponta somente para o VPS vigente
+
+Validacoes objetivas:
+
+```bash
+dig +short A cardapiokop.ascendcreative.com.br
+
+curl -sS -I https://cardapiokop.ascendcreative.com.br/
+curl -sS -I --resolve cardapiokop.ascendcreative.com.br:443:69.6.222.219 https://cardapiokop.ascendcreative.com.br/
+curl -sS -I --resolve cardapiokop.ascendcreative.com.br:443:108.167.188.244 https://cardapiokop.ascendcreative.com.br/
+
+curl -sS -i --resolve cardapiokop.ascendcreative.com.br:443:69.6.222.219 https://cardapiokop.ascendcreative.com.br/api/auth/me
+curl -sS -i --resolve cardapiokop.ascendcreative.com.br:443:108.167.188.244 https://cardapiokop.ascendcreative.com.br/api/auth/me
+```
+
+Criterio para considerar o corte concluido:
+
+1. `dig +short A` retorna apenas `69.6.222.219`
+2. `curl -I https://cardapiokop.ascendcreative.com.br/` responde com `Server: nginx/1.18.0 (Ubuntu)`
+3. `curl -i https://cardapiokop.ascendcreative.com.br/api/auth/me` responde `401` com JSON
 
 ## Objetivo
 
