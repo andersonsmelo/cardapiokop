@@ -66,6 +66,35 @@ sudo -u postgres psql -d cardapio -c 'select count(*) from users;'
 sudo awk -F= '/^(DATABASE_URL|JWT_SECRET|ADMIN_EMAIL|ADMIN_PASSWORD)=/ {print $1"=<set>"}' /srv/cardapio/.env.local
 ```
 
+## Hardening do Nginx
+
+O baseline de borda deve incluir o snippet versionado em:
+
+- `/Users/anderson/Developer/cardapiokop-main/docs/operations/snippets/cardapio-nginx-security.conf`
+
+Fluxo recomendado no VPS:
+
+```bash
+sudo install -m 0644 /srv/cardapio/docs/operations/snippets/cardapio-nginx-security.conf /etc/nginx/snippets/cardapio-nginx-security.conf
+sudo editor /etc/nginx/sites-available/cardapio
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+No bloco `server` do site, inclua explicitamente:
+
+```nginx
+include /etc/nginx/snippets/cardapio-nginx-security.conf;
+```
+
+Esse snippet cobre:
+
+- `Strict-Transport-Security`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` e `Permissions-Policy` com `always`
+- `client_max_body_size 5m`
+- `limit_req` dedicado para `/api/auth/login` e `/api/upload`
+
+Depois do reload, valide no host publicado que os headers aparecem tambem em respostas de erro e em assets estaticos.
+
 ## Desenvolvimento Local com Banco Real
 
 Se voce quiser reproduzir localmente usando os dados reais:
