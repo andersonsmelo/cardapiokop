@@ -92,7 +92,6 @@ include /etc/nginx/snippets/cardapio-nginx-security.conf;
 Esse snippet cobre:
 
 - `Strict-Transport-Security`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` e `Permissions-Policy` com `always`
-- `client_max_body_size 5m`
 - `limit_req` dedicado para `/api/auth/login` e `/api/upload`, com zonas declaradas no contexto global via `conf.d/cardapio-rate-limit-zones.conf`
 
 Depois do reload, valide no host publicado que os headers aparecem tambem em respostas de erro e em assets estaticos.
