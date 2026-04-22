@@ -1,45 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
+import { assertAllowedOrigin, getClientIp } from '@/lib/request-security';
+import { takeRateLimitHit } from '@/lib/rate-limit';
+import { buildProductUploadPath, detectImageFormat, sanitizeImageBuffer } from '@/lib/upload';
 import { writeFile, mkdir } from 'fs/promises';
 import { randomUUID } from 'crypto';
 import path from 'path';
 
-type AllowedImageFormat = 'jpg' | 'png' | 'webp' | 'gif';
-
-function startsWithSignature(bytes: Uint8Array, signature: number[]) {
-    return signature.every((value, index) => bytes[index] === value);
-}
-
-function detectImageFormat(bytes: Uint8Array): AllowedImageFormat | null {
-    if (bytes.length >= 3 && startsWithSignature(bytes, [0xff, 0xd8, 0xff])) {
-        return 'jpg';
-    }
-
-    if (bytes.length >= 8 && startsWithSignature(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) {
-        return 'png';
-    }
-
-    if (
-        bytes.length >= 12 &&
-        startsWithSignature(bytes, [0x52, 0x49, 0x46, 0x46]) &&
-        startsWithSignature(bytes.slice(8, 12), [0x57, 0x45, 0x42, 0x50])
-    ) {
-        return 'webp';
-    }
-
-    if (bytes.length >= 6) {
-        const header = String.fromCharCode(...bytes.slice(0, 6));
-        if (header === 'GIF87a' || header === 'GIF89a') {
-            return 'gif';
-        }
-    }
-
-    return null;
-}
-
 export async function POST(request: NextRequest) {
     try {
-        await requireAuth();
+        await requireAdmin();
+        assertAllowedOrigin(request);
+
+        const ip = getClientIp(request);
+        const rateLimit = takeRateLimitHit(`upload:${ip}`, 10, 60_000);
+        if (!rateLimit.allowed) {
+            return NextResponse.json(
+                { error: 'Muitos uploads. Tente novamente em 1 minuto.' },
+                { status: 429 }
+            );
+        }
 
         const formData = await request.formData();
         const file = formData.get('file') as File | null;
@@ -64,25 +44,38 @@ export async function POST(request: NextRequest) {
 
         if (!imageFormat) {
             return NextResponse.json(
-                { error: 'Arquivo inválido. Use uma imagem JPG, PNG, WebP ou GIF válida.' },
+                { error: 'Arquivo inválido. Use JPG, PNG ou WebP.' },
                 { status: 400 }
             );
         }
 
-        const fileName = `${randomUUID()}.${imageFormat}`;
+        const sanitizedBuffer = await sanitizeImageBuffer(buffer);
+        const upload = buildProductUploadPath(process.cwd(), randomUUID());
+        await mkdir(path.dirname(upload.filePath), { recursive: true });
+        await writeFile(upload.filePath, sanitizedBuffer);
 
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
-        await mkdir(uploadDir, { recursive: true });
-
-        const filePath = path.join(uploadDir, fileName);
-        await writeFile(filePath, buffer);
-
-        const url = `/uploads/products/${fileName}`;
-
-        return NextResponse.json({ url });
+        return NextResponse.json({ url: upload.publicUrl }, { status: 201 });
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'Unauthorized') {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        }
+        if (error instanceof Error && error.message === 'Forbidden') {
+            return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+        }
+        if (error instanceof Error && error.message === 'FORBIDDEN_ORIGIN') {
+            return NextResponse.json({ error: 'Origem não permitida' }, { status: 403 });
+        }
+        if (error instanceof Error && error.message === 'APP_ORIGIN_NOT_CONFIGURED') {
+            return NextResponse.json({ error: 'Configuração de origem ausente' }, { status: 500 });
+        }
+        if (error instanceof Error) {
+            const message = error.message.toLowerCase();
+            if (message.includes('input buffer') || message.includes('unsupported image format') || message.includes('corrupt')) {
+                return NextResponse.json(
+                    { error: 'Arquivo inválido. Não foi possível processar a imagem.' },
+                    { status: 400 }
+                );
+            }
         }
         console.error('Error uploading file:', error);
         return NextResponse.json(
