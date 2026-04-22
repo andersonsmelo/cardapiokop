@@ -71,10 +71,12 @@ sudo awk -F= '/^(DATABASE_URL|JWT_SECRET|ADMIN_EMAIL|ADMIN_PASSWORD)=/ {print $1
 O baseline de borda deve incluir o snippet versionado em:
 
 - `/Users/anderson/Developer/cardapiokop-main/docs/operations/snippets/cardapio-nginx-security.conf`
+- `/Users/anderson/Developer/cardapiokop-main/docs/operations/snippets/cardapio-rate-limit-zones.conf`
 
 Fluxo recomendado no VPS:
 
 ```bash
+sudo install -m 0644 /srv/cardapio/docs/operations/snippets/cardapio-rate-limit-zones.conf /etc/nginx/conf.d/cardapio-rate-limit-zones.conf
 sudo install -m 0644 /srv/cardapio/docs/operations/snippets/cardapio-nginx-security.conf /etc/nginx/snippets/cardapio-nginx-security.conf
 sudo editor /etc/nginx/sites-available/cardapio
 sudo nginx -t
@@ -91,7 +93,7 @@ Esse snippet cobre:
 
 - `Strict-Transport-Security`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` e `Permissions-Policy` com `always`
 - `client_max_body_size 5m`
-- `limit_req` dedicado para `/api/auth/login` e `/api/upload`
+- `limit_req` dedicado para `/api/auth/login` e `/api/upload`, com zonas declaradas no contexto global via `conf.d/cardapio-rate-limit-zones.conf`
 
 Depois do reload, valide no host publicado que os headers aparecem tambem em respostas de erro e em assets estaticos.
 
