@@ -5,6 +5,8 @@ import { eq } from 'drizzle-orm';
 import { verifyPassword, signToken, setAuthCookie } from '@/lib/auth';
 import { takeRateLimitHit } from '@/lib/rate-limit';
 import { assertAllowedOrigin, getClientIp } from '@/lib/request-security';
+import { formatValidationError, LoginSchema } from '@/lib/validation';
+import { ZodError } from 'zod';
 
 export async function POST(request: NextRequest) {
     try {
@@ -20,14 +22,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { email, password } = await request.json();
-
-        if (!email || !password) {
-            return NextResponse.json(
-                { error: 'Email e senha são obrigatórios' },
-                { status: 400 }
-            );
-        }
+        const { email, password } = LoginSchema.parse(await request.json());
 
         const [user] = await db
             .select()
@@ -50,17 +45,30 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        const role = 'role' in user && user.role === 'admin' ? user.role : 'admin';
+
         const token = await signToken({
             id: user.id,
             email: user.email,
-            role: 'admin',
+            role,
         });
         await setAuthCookie(token);
 
         return NextResponse.json({
-            user: { id: user.id, email: user.email, role: 'admin' },
+            user: { id: user.id, email: user.email, role },
         });
     } catch (error) {
+        if (error instanceof ZodError) {
+            return NextResponse.json(formatValidationError(error), { status: 400 });
+        }
+
+        if (error instanceof SyntaxError) {
+            return NextResponse.json(
+                { error: 'Payload inválido' },
+                { status: 400 }
+            );
+        }
+
         if (error instanceof Error && error.message === 'FORBIDDEN_ORIGIN') {
             return NextResponse.json(
                 { error: 'Origem inválida' },

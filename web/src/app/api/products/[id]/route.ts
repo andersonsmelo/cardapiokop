@@ -2,14 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/index';
 import { products } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { requireAuth } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
+import {
+    formatValidationError,
+    ProductPayloadSchema,
+    UuidParamSchema,
+} from '@/lib/validation';
+import { ZodError } from 'zod';
 
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = await params;
+        const { id } = UuidParamSchema.parse(await params);
 
         const [product] = await db
             .select()
@@ -35,6 +41,10 @@ export async function GET(
             created_at: product.createdAt,
         });
     } catch (error) {
+        if (error instanceof ZodError) {
+            return NextResponse.json(formatValidationError(error), { status: 400 });
+        }
+
         console.error('Error fetching product:', error);
         return NextResponse.json(
             { error: 'Erro ao buscar produto' },
@@ -48,10 +58,10 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAuth();
-        const { id } = await params;
-        const body = await request.json();
-        const { name, description, price, image_url, category_id, featured } = body;
+        await requireAdmin();
+        const { id } = UuidParamSchema.parse(await params);
+        const { name, description, price, image_url, category_id, featured } =
+            ProductPayloadSchema.parse(await request.json());
 
         const [updated] = await db
             .update(products)
@@ -75,8 +85,22 @@ export async function PUT(
 
         return NextResponse.json(updated);
     } catch (error: unknown) {
+        if (error instanceof ZodError) {
+            return NextResponse.json(formatValidationError(error), { status: 400 });
+        }
+
+        if (error instanceof SyntaxError) {
+            return NextResponse.json(
+                { error: 'Payload inválido' },
+                { status: 400 }
+            );
+        }
+
         if (error instanceof Error && error.message === 'Unauthorized') {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        }
+        if (error instanceof Error && error.message === 'Forbidden') {
+            return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
         }
         console.error('Error updating product:', error);
         return NextResponse.json(
@@ -91,8 +115,8 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await requireAuth();
-        const { id } = await params;
+        await requireAdmin();
+        const { id } = UuidParamSchema.parse(await params);
 
         const [deleted] = await db
             .delete(products)
@@ -108,8 +132,15 @@ export async function DELETE(
 
         return NextResponse.json({ success: true });
     } catch (error: unknown) {
+        if (error instanceof ZodError) {
+            return NextResponse.json(formatValidationError(error), { status: 400 });
+        }
+
         if (error instanceof Error && error.message === 'Unauthorized') {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        }
+        if (error instanceof Error && error.message === 'Forbidden') {
+            return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
         }
         console.error('Error deleting product:', error);
         return NextResponse.json(

@@ -2,13 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/index';
 import { products, categories } from '@/db/schema';
 import { eq, desc, asc } from 'drizzle-orm';
-import { requireAuth } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
+import {
+    formatValidationError,
+    ProductPayloadSchema,
+    ProductQuerySchema,
+} from '@/lib/validation';
+import { ZodError } from 'zod';
 
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
-        const categoryId = searchParams.get('category_id');
-        const sort = searchParams.get('sort');
+        const { category_id, sort } = ProductQuerySchema.parse(
+            Object.fromEntries(searchParams.entries())
+        );
 
         let query = db
             .select({
@@ -25,8 +32,8 @@ export async function GET(request: NextRequest) {
             .from(products)
             .leftJoin(categories, eq(products.categoryId, categories.id));
 
-        if (categoryId) {
-            query = query.where(eq(products.categoryId, categoryId)) as typeof query;
+        if (category_id) {
+            query = query.where(eq(products.categoryId, category_id)) as typeof query;
         }
 
         if (sort === 'name') {
@@ -51,6 +58,10 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(formatted);
     } catch (error) {
+        if (error instanceof ZodError) {
+            return NextResponse.json(formatValidationError(error), { status: 400 });
+        }
+
         console.error('Error fetching products:', error);
         return NextResponse.json(
             { error: 'Erro ao buscar produtos' },
@@ -61,10 +72,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        await requireAuth();
+        await requireAdmin();
 
-        const body = await request.json();
-        const { name, description, price, image_url, category_id, featured } = body;
+        const { name, description, price, image_url, category_id, featured } =
+            ProductPayloadSchema.parse(await request.json());
 
         const [newProduct] = await db
             .insert(products)
@@ -80,8 +91,22 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(newProduct, { status: 201 });
     } catch (error: unknown) {
+        if (error instanceof ZodError) {
+            return NextResponse.json(formatValidationError(error), { status: 400 });
+        }
+
+        if (error instanceof SyntaxError) {
+            return NextResponse.json(
+                { error: 'Payload inválido' },
+                { status: 400 }
+            );
+        }
+
         if (error instanceof Error && error.message === 'Unauthorized') {
             return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        }
+        if (error instanceof Error && error.message === 'Forbidden') {
+            return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
         }
         console.error('Error creating product:', error);
         return NextResponse.json(
