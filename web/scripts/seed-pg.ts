@@ -69,7 +69,7 @@ async function seed() {
         passwordHash,
     }).onConflictDoNothing();
     console.log(`   Email: ${adminEmail}`);
-    console.log(`   Password: ${adminPassword}\n`);
+    console.log('   Password: <not printed>\n');
 
     // 2. Insert categories
     console.log('📂 Inserting categories...');
