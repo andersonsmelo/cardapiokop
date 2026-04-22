@@ -11,10 +11,19 @@ interface MenuContainerProps {
 }
 
 export function MenuContainer({ categories, products }: MenuContainerProps) {
-    const [activeCategory, setActiveCategory] = useState<string>(categories[0]?.id || '');
+    const visibleCategories = categories.filter((category) =>
+        products.some((product) => product.categoryId === category.id)
+    );
+
+    const [activeCategory, setActiveCategory] = useState<string>(visibleCategories[0]?.id || '');
     const observerRef = useRef<IntersectionObserver | null>(null);
+    const currentActiveCategory = visibleCategories.some((category) => category.id === activeCategory)
+        ? activeCategory
+        : visibleCategories[0]?.id || '';
 
     useEffect(() => {
+        if (!visibleCategories.length) return;
+
         const options = {
             root: null,
             rootMargin: '-120px 0px -70% 0px', // Adjusted offset for spy
@@ -29,7 +38,7 @@ export function MenuContainer({ categories, products }: MenuContainerProps) {
             });
         }, options);
 
-        categories.forEach((cat) => {
+        visibleCategories.forEach((cat) => {
             const element = document.getElementById(cat.id);
             if (element && observerRef.current) {
                 observerRef.current.observe(element);
@@ -41,10 +50,9 @@ export function MenuContainer({ categories, products }: MenuContainerProps) {
                 observerRef.current.disconnect();
             }
         };
-    }, [categories]);
+    }, [visibleCategories]);
 
     const handleCategorySelect = (id: string) => {
-        // setActiveCategory(id); // Let the observer update it to avoid conflict
         const element = document.getElementById(id);
         if (element) {
             const headerOffset = 130;
@@ -60,14 +68,16 @@ export function MenuContainer({ categories, products }: MenuContainerProps) {
 
     return (
         <>
-            <CategoryNav
-                categories={categories}
-                activeId={activeCategory}
-                onSelect={handleCategorySelect}
-            />
+            {visibleCategories.length > 0 && (
+                <CategoryNav
+                    categories={visibleCategories}
+                    activeId={currentActiveCategory}
+                    onSelect={handleCategorySelect}
+                />
+            )}
 
-            <main className="max-w-xl mx-auto px-4 py-8 min-h-screen">
-                {categories.map((cat) => {
+            <div className="max-w-xl mx-auto px-4 py-8 min-h-screen">
+                {visibleCategories.map((cat) => {
                     const catProducts = products.filter(p => p.categoryId === cat.id);
                     if (catProducts.length === 0) return null;
 
@@ -92,7 +102,7 @@ export function MenuContainer({ categories, products }: MenuContainerProps) {
                         </section>
                     );
                 })}
-            </main>
+            </div>
         </>
     );
 }

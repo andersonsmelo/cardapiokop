@@ -6,11 +6,14 @@ Cardapio digital para mesas de restaurante Kopenhagen. Clientes escaneiam o QR C
 
 ## Estado Atual
 
-Verificado em **20/04/2026**:
+Verificado em **22/04/2026**:
 
 - O cardapio publico e o admin usam o tema claro **Cafe Creme**.
-- O banco real do projeto esta no **VPS**, nao no ambiente local por padrao.
-- As API routes existem e ficam em `src/app/api/*`.
+- A home publica agora usa navegacao com **categorias fixas no topo** e **itens em sequencia abaixo**, com scroll ate a secao clicada.
+- Falhas de acesso ao banco **nao** sao mais mascaradas como lista vazia; a UI publica mostra estado explicito de indisponibilidade.
+- O upload de imagens foi endurecido para validar o binario real da imagem e gerar extensao/nome no servidor.
+- `npm run lint`, `npm test`, `npx tsc --noEmit` e `npm run build` passam no estado atual do app.
+- O banco real do projeto continua no **VPS**, nao no ambiente local por padrao.
 - O ambiente em `/srv/cardapio` no VPS esta rodando, mas **nao e um checkout git**.
 - O repositório local e o artefato em producao ficaram desalinhados em alguns pontos; sempre valide contra o VPS antes de assumir ausencia de dados ou rotas.
 
@@ -52,7 +55,7 @@ PostgreSQL 16 (localhost:5432, database: cardapio)
 web/
   src/
     app/
-      page.tsx              # Home - lista categorias
+      page.tsx              # Home - categorias no topo + itens em sequencia
       [category]/page.tsx   # Produtos por categoria
       login/page.tsx        # Login admin
       admin/page.tsx        # Dashboard admin (CRUD produtos)
@@ -66,14 +69,14 @@ web/
         products/           # GET/POST - listar/criar produtos
         products/[id]/      # GET/PUT/DELETE - CRUD produto
         upload/             # POST - upload de imagem
-    components/             # ProductCard, CategoryCard, ProductForm, etc.
+    components/             # Header, MenuContainer, CategoryNav, ProductCard, ProductForm, etc.
     contexts/AuthContext.tsx # Provider de autenticacao
     db/
       schema.ts             # Tabelas: users, categories, products
       index.ts              # Conexao PostgreSQL via Drizzle
     lib/
       auth.ts               # JWT sign/verify, bcrypt, cookies
-      data.ts               # Queries: getCategories, getProducts
+      data.ts               # Queries: getCategories, getProducts, getAllProducts
     types/
       index.ts              # Interfaces: Product, Category
     middleware.ts           # SSR Admin protection
@@ -207,10 +210,38 @@ Arquivos mais relevantes do tema:
 
 - `src/app/globals.css`
 - `src/components/Header.tsx`
-- `src/components/CategoryCard.tsx`
+- `src/components/MenuContainer.tsx`
+- `src/components/CategoryNav.tsx`
 - `src/components/ProductCard.tsx`
 - `src/app/login/page.tsx`
 - `src/app/admin/page.tsx`
+
+## Fluxo Publico Atual
+
+O comportamento atual do cardapio publico e:
+
+1. O usuario abre `/`.
+2. Encontra as categorias em uma barra fixa logo abaixo do header.
+3. Ao tocar em uma categoria, a pagina faz scroll suave ate a secao correspondente.
+4. Todos os produtos ficam em uma unica pagina, agrupados por categoria.
+5. A rota `/<categoria>` continua existindo e mostra apenas os itens daquela categoria.
+
+Arquivos principais desse fluxo:
+
+- `src/app/page.tsx`
+- `src/components/MenuContainer.tsx`
+- `src/components/CategoryNav.tsx`
+- `src/lib/data.ts`
+
+## Seguranca e Robustez
+
+Melhorias recentes aplicadas:
+
+- Upload valida **assinatura binaria** da imagem no servidor, em vez de confiar apenas no MIME enviado pelo cliente.
+- Upload gera nome e extensao no servidor e rejeita formatos nao suportados.
+- Falha de infraestrutura no banco agora gera estado de indisponibilidade na UI publica.
+- Suite do Vitest foi isolada dos testes Playwright.
+- O lint deixou de falhar por scripts legados fora do escopo do app web.
 
 ## Testes & Code Quality
 
@@ -221,11 +252,20 @@ O projeto conta com infraestrutura moderna para Qualidade de Software (QA):
   - Execute `npx tsc --noEmit` para validar strict types no projeto.
 - **Testes Unitários / Integração**: 
   - Utilitários e funções críticas implementados com **Vitest**, **React Testing Library** e **jsdom**.
-  - Comando: `npm run test` (testes localizados como `*.test.ts`).
+  - Comando: `npm run test` (restrito a `src/**/*.{test,spec}.{ts,tsx}`).
 - **Testes E2E (End-to-End)**: 
   - Para validação de fluxos complexos como rotas de categorias via browser automation real.
   - Utilizamos **Playwright** (`/e2e`).
   - Comando: `npm run test:e2e` (Requer que a aplicação esteja rodando em `:3000`).
+
+Checklist rapido de validacao:
+
+```bash
+npm run lint
+npm test
+npx tsc --noEmit
+npm run build
+```
 
 ## Deploy (VPS)
 
