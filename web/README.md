@@ -2,8 +2,6 @@
 
 Cardapio digital para mesas de restaurante Kopenhagen. Clientes escaneiam o QR Code na mesa e acessam o cardapio completo pelo celular.
 
-**Producao**: https://cardapiokop.ascendcreative.com.br
-
 ## Estado Atual
 
 Verificado em **22/04/2026**:
@@ -13,9 +11,9 @@ Verificado em **22/04/2026**:
 - Falhas de acesso ao banco **nao** sao mais mascaradas como lista vazia; a UI publica mostra estado explicito de indisponibilidade.
 - O upload de imagens foi endurecido para validar o binario real da imagem e gerar extensao/nome no servidor.
 - `npm run lint`, `npm test`, `npx tsc --noEmit` e `npm run build` passam no estado atual do app.
-- O banco real do projeto continua no **VPS**, nao no ambiente local por padrao.
-- O ambiente em `/srv/cardapio` no VPS esta rodando, mas **nao e um checkout git**.
-- O repositório local e o artefato em producao ficaram desalinhados em alguns pontos; sempre valide contra o VPS antes de assumir ausencia de dados ou rotas.
+- O ambiente operacional real nao e o ambiente local por padrao.
+- O artefato em producao nao e tratado como checkout git editavel.
+- O repositorio local e o artefato em producao podem ficar desalinhados; consulte o runbook privado antes de assumir ausencia de dados ou rotas.
 
 Runbook operacional: [`docs/operations/cardapio-vps-runbook.md`](../docs/operations/cardapio-vps-runbook.md)
 
@@ -92,8 +90,13 @@ web/
 
 ### Pre-requisitos
 - Node.js 20+
-- Acesso SSH ao VPS se quiser usar os dados reais
 - Opcional: PostgreSQL 16 local, apenas se for trabalhar totalmente offline
+
+## Production Access
+
+Production hostnames, SSH details, and operational credentials are documented only in the private operations runbook.
+
+See: `docs/operations/cardapio-vps-runbook.md`
 
 ### Instalacao
 
@@ -103,29 +106,9 @@ cd web
 npm install
 ```
 
-#### Opcao A: desenvolvimento apontando para o banco real do VPS
+#### Opcao A: desenvolvimento 100% local
 
-Esta e a forma mais fiel ao comportamento atual do projeto.
-
-```bash
-# 1) abrir tunel SSH para o PostgreSQL do VPS
-ssh -p 22022 -N -L 6543:127.0.0.1:5432 Hashi1802@69.6.222.219
-
-# 2) copiar os valores de /srv/cardapio/.env.local para web/.env.local
-#    e trocar apenas o DATABASE_URL para apontar para 127.0.0.1:6543
-#
-# Exemplo:
-# DATABASE_URL=postgresql://usuario:senha@127.0.0.1:6543/cardapio
-
-# 3) iniciar o app local
-npm run dev -- --hostname 127.0.0.1 --port 3002
-```
-
-Acesse `http://127.0.0.1:3002`.
-
-#### Opcao B: desenvolvimento 100% local
-
-Use esta opcao apenas se voce realmente quiser trabalhar sem dependencia do VPS.
+Use esta opcao por padrao para evitar depender de infraestrutura de producao durante o desenvolvimento.
 
 ```bash
 # Configurar ambiente
@@ -143,44 +126,15 @@ npm run dev
 
 Acesse `http://localhost:3000`.
 
+#### Opcao B: desenvolvimento apontando para infraestrutura privada
+
+Quando for necessario validar contra o ambiente operacional real, siga apenas o runbook privado. Nao replique hostnames, portas, caminhos, credenciais ou comandos operacionais em documentacao compartilhada.
+
+Runbook operacional: [`../docs/operations/cardapio-vps-runbook.md`](../docs/operations/cardapio-vps-runbook.md)
+
 ### Onde Procurar Primeiro
 
-Se houver divergencia entre o ambiente local e o comportamento real do projeto, a **fonte de verdade atual e o banco de producao estao no VPS**.
-
-Verificado em **20/04/2026**:
-- **VPS**: `69.6.222.219`
-- **SSH**: porta `22022`
-- **App em producao**: `/srv/cardapio`
-- **Service**: `cardapio.service`
-- **Env do deploy**: `/srv/cardapio/.env.local`
-- **Banco real do projeto**: PostgreSQL local no VPS, `127.0.0.1:5432`, database `cardapio`
-
-Estado confirmado no VPS em 20/04/2026:
-- tabelas: `categories`, `products`, `users`
-- contagens: `categories=5`, `products=21`, `users=2`
-- rotas presentes no artefato rodando em producao:
-  - `src/app/api/auth/login/route.ts`
-  - `src/app/api/auth/logout/route.ts`
-  - `src/app/api/auth/me/route.ts`
-  - `src/app/api/categories/route.ts`
-  - `src/app/api/products/route.ts`
-  - `src/app/api/products/[id]/route.ts`
-  - `src/app/api/upload/route.ts`
-
-Antes de assumir que "o banco nao existe" ou que "faltam dados", confira primeiro o VPS:
-
-```bash
-ssh -p 22022 Hashi1802@69.6.222.219
-
-# listar databases
-sudo -u postgres psql -lqt
-
-# inspecionar a base do cardapio
-sudo -u postgres psql -d cardapio -c '\dt'
-sudo -u postgres psql -d cardapio -c 'select count(*) from categories;'
-sudo -u postgres psql -d cardapio -c 'select count(*) from products;'
-sudo -u postgres psql -d cardapio -c 'select count(*) from users;'
-```
+Se houver divergencia entre o ambiente local e o comportamento real do projeto, confira primeiro o runbook privado e valide o estado do ambiente operacional antes de assumir ausencia de dados, rotas ou configuracoes.
 
 ### Variaveis de Ambiente
 
@@ -188,6 +142,7 @@ sudo -u postgres psql -d cardapio -c 'select count(*) from users;'
 |---|---|---|
 | `DATABASE_URL` | Connection string PostgreSQL (usa pool max: 10) | `postgresql://cardapio:senha@localhost:5432/cardapio` |
 | `JWT_SECRET` | Chave p/ assinar tokens (**min: 32 caracteres**) | `4206ae30778227a99...` |
+| `APP_ORIGIN` | Origem canonica usada para cookies e validacoes server-side | `https://cardapiokop.example.com` |
 | `ADMIN_EMAIL` | Email do admin (usado no seed) | `admin@kopenhagen.com` |
 | `ADMIN_PASSWORD` | Senha do admin no seed (**min: 8 caracteres**) | `sua-senha-segura` |
 
@@ -270,37 +225,13 @@ npm run build
 ## Deploy (VPS)
 
 ### Infraestrutura
-- **VPS**: HostGator, Ubuntu 22.04, 1vCPU/2GB RAM
-- **IP**: 69.6.222.219
-- **VPS**: Servidor Remoto Ubuntu 22.04
-- **SSH**: Via chave privada configurada localmente
-- **SSH porta**: `22022`
-- **App**: `/srv/cardapio` (Next.js ja buildado/empacotado)
-- **Banco**: PostgreSQL local (database `cardapio`, user `cardapio`)
-- **Arquivo de ambiente**: `/srv/cardapio/.env.local`
-- **Proxy**: Nginx reverse proxy porta 443 -> 3001
-- **SSL**: Let's Encrypt (auto-renew via Certbot)
-- **Processo**: systemd service `cardapio.service`
-- **Observacao**: em 20/04/2026, `/srv/cardapio` nao era um checkout git
+- O deploy atual usa VPS Linux com Nginx, systemd, PostgreSQL e um artefato Next.js empacotado.
+- Coordenadas de acesso, caminhos, hostnames, portas e credenciais ficam somente no runbook privado.
+- Nao assuma `git pull` em producao; confirme o processo vigente de publicacao antes de alterar o servidor.
 
 ### Deploy Manual
 
-```bash
-# SSH na VPS
-ssh -p 22022 Hashi1802@69.6.222.219
-
-# Verificar o service
-sudo systemctl status cardapio
-sudo journalctl -u cardapio -n 200 --no-pager
-
-# Verificar o diretorio em producao
-cd /srv/cardapio
-ls -la
-```
-
-Nao assuma `git pull` dentro de `/srv/cardapio`.
-
-Em 20/04/2026, o diretorio continha o app rodando, mas nao era um repositorio git. Trate o deploy atual como **artefato sincronizado/buildado**, nao como checkout editavel. Se for necessario atualizar producao manualmente, primeiro confirme o processo de publicacao vigente antes de sobrescrever arquivos no servidor.
+Siga apenas o runbook privado para verificacao, manutencao e publicacao manual em producao.
 
 ### CI/CD (GitHub Actions)
 
@@ -309,39 +240,14 @@ O repositorio ainda contem `.github/workflows/deploy.yml`, mas ele descreve um f
 Antes de mexer em CI/CD, confira:
 
 - se o workflow ainda e usado de verdade
-- quem publica os arquivos em `/srv/cardapio`
+- quem publica o artefato no servidor
 - se existe outro pipeline fora deste repositorio
 
-Secrets necessarios no GitHub:
-- `VPS_HOST` = IP do servidor
-- `VPS_USER` = usuário SSH
-- `VPS_SSH_KEY` = chave SSH privada
+Os nomes reais de secrets e coordenadas de acesso devem ser consultados no runbook privado ou no cofre de segredos da equipe.
 
 ### Comandos Uteis
 
-```bash
-# Status do app
-sudo systemctl status cardapio
-
-# Logs
-sudo journalctl -u cardapio -f
-
-# Ver ambiente do deploy
-sudo systemctl cat cardapio
-sudo awk -F= '/^(DATABASE_URL|JWT_SECRET)=/ {print $1"=<set>"}' /srv/cardapio/.env.local
-
-# Nginx
-sudo nginx -t && sudo systemctl reload nginx
-
-# Banco
-PGPASSWORD=<senha> psql -U cardapio -h 127.0.0.1 -d cardapio
-
-# Confirmar que /srv/cardapio nao e um checkout git
-git rev-parse --is-inside-work-tree
-
-# Certificado SSL
-sudo certbot certificates
-```
+Consulte `../docs/operations/cardapio-vps-runbook.md` para os comandos operacionais atualizados.
 
 ## Banco de Dados
 
@@ -380,7 +286,7 @@ Endpoints de listagem e alteração de produtos validados explicitamente via `zo
 
 ## QR Code
 
-QR Codes gerados apontam para `https://cardapiokop.ascendcreative.com.br` (dominio fixo, QR codes ja impressos).
+QR Codes gerados devem apontar para a origem canonica definida para o produto. Consulte o runbook privado antes de alterar o dominio ou regenerar materiais impressos.
 
 Para regenerar:
 ```bash

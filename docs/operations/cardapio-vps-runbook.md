@@ -2,6 +2,8 @@
 
 Ultima verificacao manual: **20/04/2026**
 
+> Documento privado de operacoes. Nao copie hostnames, portas, caminhos, comandos sensiveis ou referencias a credenciais deste arquivo para README publico, issues, PRs abertas ou transcripts de chat.
+
 ## Objetivo
 
 Este runbook existe para reduzir tempo de diagnostico quando houver divergencia entre:
