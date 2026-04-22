@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.2 - 2026-04-22
+
+### Added
+- Gate de seguranca em CI com lint, testes, type-check, `npm audit --omit=dev` e secret scanning com Gitleaks.
+- Dependabot semanal para dependencias npm e GitHub Actions.
+- Snippet versionado de hardening do Nginx para rate limiting e headers na borda.
+
+### Changed
+- Atualizacao de dependencias sensiveis para `next@16.2.4` e `drizzle-orm@0.45.2`.
+- Validacao server-side com Zod nas rotas de login e CRUD de produtos.
+- Autenticacao administrativa com token JWT tipado, expiracao de 8 horas, protecao same-origin e rate limiting no login.
+- Upload de imagens agora reencoda tudo para `.webp`, limita processamento e rejeita binarios invalidos.
+- Headers de seguranca centralizados via Next.js: CSP, HSTS, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` e `Permissions-Policy`.
+
+### Fixed
+- Regressao de verificacao same-origin em ambiente local quando `APP_ORIGIN` nao estava definido.
+- Ausencia de `403` explicito para fluxos administrativos autenticados sem permissao.
+- Exposicao a abuso de upload sem limitacao por IP e sem sanitizacao de imagem no servidor.
+
 ## 0.1.1 - 2026-04-22
 
 ### Added

@@ -9,7 +9,10 @@ Verificado em **22/04/2026**:
 - O cardapio publico e o admin usam o tema claro **Cafe Creme**.
 - A home publica agora usa navegacao com **categorias fixas no topo** e **itens em sequencia abaixo**, com scroll ate a secao clicada.
 - Falhas de acesso ao banco **nao** sao mais mascaradas como lista vazia; a UI publica mostra estado explicito de indisponibilidade.
-- O upload de imagens foi endurecido para validar o binario real da imagem e gerar extensao/nome no servidor.
+- Login admin agora usa rate limiting por IP, validacao server-side e checks same-origin para mudancas de estado.
+- O upload de imagens foi endurecido para validar o binario real, reencodar arquivos aceitos para `.webp` e limitar abuso operacional.
+- O app agora envia headers de seguranca no runtime e o baseline de borda versionado inclui rate limiting no Nginx.
+- O pipeline possui gate de seguranca com lint, testes, type-check, `npm audit --omit=dev` e secret scanning.
 - `npm run lint`, `npm test`, `npx tsc --noEmit` e `npm run build` passam no estado atual do app.
 - O ambiente operacional real nao e o ambiente local por padrao.
 - O artefato em producao nao e tratado como checkout git editavel.
@@ -28,6 +31,7 @@ Runbook operacional: [`docs/operations/cardapio-vps-runbook.md`](../docs/operati
 | Auth | JWT (jose) + bcryptjs |
 | Upload | Filesystem local (`public/uploads/`) |
 | Deploy | Systemd + Nginx na VPS |
+| Security Gates | GitHub Actions + Gitleaks + Dependabot |
 
 ## Arquitetura
 
@@ -192,8 +196,11 @@ Arquivos principais desse fluxo:
 
 Melhorias recentes aplicadas:
 
-- Upload valida **assinatura binaria** da imagem no servidor, em vez de confiar apenas no MIME enviado pelo cliente.
-- Upload gera nome e extensao no servidor e rejeita formatos nao suportados.
+- Login admin protegido com **rate limiting**, token tipado, expiracao de 8 horas e checks same-origin.
+- CRUD administrativo validado com **Zod** no servidor para query params, payloads e UUIDs.
+- Upload valida **assinatura binaria**, reencoda tudo para **WebP**, limita tamanho/processamento e rejeita formatos nao suportados.
+- Headers de seguranca emitidos pela app: **CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy e Permissions-Policy**.
+- Pipeline com **lint, testes, type-check, npm audit e Gitleaks** antes do merge.
 - Falha de infraestrutura no banco agora gera estado de indisponibilidade na UI publica.
 - Suite do Vitest foi isolada dos testes Playwright.
 - O lint deixou de falhar por scripts legados fora do escopo do app web.
@@ -220,6 +227,7 @@ npm run lint
 npm test
 npx tsc --noEmit
 npm run build
+npm audit --omit=dev
 ```
 
 ## Deploy (VPS)
@@ -281,8 +289,8 @@ Acesse `/login` com as credenciais do admin. O painel em `/admin` permite:
 - Editar produto existente
 - Deletar produto
 
-Autenticacao via cookie HttpOnly JWT (24h de expiracao) com Middleware Server-Side interceptando e bloqueando acessos ao perímetro `/admin/*` sem token válido.
-Endpoints de listagem e alteração de produtos validados explicitamente via `zod`. Rate-limiting estrito habilitado em tentativas de Login.
+Autenticacao via cookie HttpOnly JWT com expiracao de 8 horas, middleware server-side no perimetro `/admin/*`, validacao same-origin nas rotas mutaveis e rate limiting estrito em tentativas de login.
+Endpoints de listagem e alteracao de produtos sao validados explicitamente via `zod`, e operacoes de escrita exigem contexto administrativo autenticado.
 
 ## QR Code
 
